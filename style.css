@@ -1,0 +1,29 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    display: flex;          
+    height: 100vh;          
+    background-color: #e77b77;
+}
+
+h1 {
+    color:white
+}
+
+#left-panel {
+    width: 30%;          
+    background-color: #e77b77;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+#map {
+    width: 45%;             
+    height: 100%;           
+}
+
+#csun-logo {
+    width: 80%;         
+    display: block;
+    margin: 20px auto; 
+}
