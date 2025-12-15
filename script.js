@@ -2,6 +2,9 @@
 let map;
 let currentIndex = 0;
 let scoreCorrect = 0;
+let startTime = null;
+let timerInterval = null;
+let gameStarted = false;
 
 // building Coordinates
 let locations = [
@@ -56,9 +59,27 @@ let locations = [
     }
 ];
 
-// updates text on the html page
+// update text
 const questionTextEl = document.getElementById("question-text");
 const scoreEl = document.getElementById("score");
+const timerEl = document.getElementById("timer");
+const startBtn = document.getElementById("start-btn");
+
+//start button event listener
+startBtn.addEventListener("click", function () {
+    gameStarted = true;
+
+    questionTextEl.style.display = "block";
+    scoreEl.style.display = "block";
+    timerEl.style.display = "block";
+
+
+    startBtn.style.display = "none";
+
+    showQuestion();
+    updateScore();
+    startTimer();
+});
 
 function initMap() {
     // map center
@@ -99,12 +120,14 @@ function initMap() {
         ]
     });
 
-    // shows first question
+    // on start
     showQuestion();
     updateScore();
 
     // doubleclick listener
     map.addListener("dblclick", function (e) {
+        if (!gameStarted) return;
+
         // gameover
         if (currentIndex >= locations.length) {
             alert("Game over! Reload the page to play again.");
@@ -119,6 +142,25 @@ function initMap() {
         checkAnswer(lat, lng);
     });
 }
+
+startBtn.addEventListener("click", function () {
+  gameStarted = true;
+
+  // Show text and timer
+  questionTextEl.style.display = "block";
+  scoreEl.style.display = "block";
+  timerEl.style.display = "block";
+  startBtn.style.display = "none";
+
+  // Hide the start button
+  startBtn.style.display = "none";
+
+  // Begin game logic
+  showQuestion();
+  updateScore();
+  startTimer();
+});
+
 
 // shows current question
 function showQuestion() {
@@ -174,14 +216,46 @@ function checkAnswer(lat, lng) {
     if (currentIndex < locations.length) {
         showQuestion();
     } else {
-        alert("You got " + scoreCorrect + " out of " + locations.length + " correct!");
-        questionTextEl.textContent = "Game over!";
+        // stop and set final timer text
+        stopTimer();
+        const finalTimeText = timerEl.textContent.replace("Time: ", "");
+        //final prompt
+        alert("You got " + scoreCorrect + " out of " + locations.length + " correct!\n" + "Your time: " + finalTimeText);
+        questionTextEl.textContent = "Game over! Reload the page to play again.";
     }
 }
 
 // score display
 function updateScore() {
     scoreEl.textContent = "Score: " + scoreCorrect + " / " + locations.length;
+}
+
+// timer
+function startTimer() {
+    startTime = Date.now();
+
+    // update every second
+    timerInterval = setInterval(updateTimer, 1000);
+}
+
+function updateTimer() {
+    if (!startTime) return;
+    const now = Date.now();
+    const diffMs = now - startTime;
+    const totalSeconds = Math.floor(diffMs / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    const minStr = String(minutes).padStart(2, "0");
+    const secStr = String(seconds).padStart(2, "0");
+    timerEl.textContent = "Time: " + minStr + ":" + secStr;
+}
+
+function stopTimer() {
+    if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
+    startTime = null;
 }
 
 // run initmap on reload
